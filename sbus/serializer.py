@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 from pydantic import ValidationError
 from pydantic.main import MetaModel
 
-from service_bus.models import Response
+from sbus.models import Response
 
 from .exceptions import BadRequestError, SerializationError
 

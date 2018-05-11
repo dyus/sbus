@@ -5,9 +5,9 @@ import sys
 
 import pytest
 
-from service_bus.router import Router
-from service_bus.subscribers import QueueSubscriber
-from service_bus.transports import AMQPTransport
+from sbus.router import Router
+from sbus.subscribers import QueueSubscriber
+from sbus.transports import AMQPTransport
 from tests.utils import make_mocked_coro
 
 logger = logging.getLogger(__name__)

@@ -6,9 +6,9 @@ from abc import ABCMeta, abstractmethod
 
 from pydantic.main import MetaModel
 
-from service_bus.exceptions import InternalServerError
-from service_bus.models import Response
-from service_bus.serializer import JSONSerializer
+from sbus.exceptions import InternalServerError
+from sbus.models import Response
+from sbus.serializer import JSONSerializer
 
 from .router import Router
 

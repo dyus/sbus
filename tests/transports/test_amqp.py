@@ -3,8 +3,8 @@ import json
 import pytest
 from aioamqp.channel import Channel
 
-from service_bus.exceptions import StreamConnectionError
-from service_bus.transports import AMQPTransport
+from sbus.exceptions import StreamConnectionError
+from sbus.transports import AMQPTransport
 from tests.utils import make_mocked_coro
 
 
@@ -60,7 +60,7 @@ class TestAMQPTransport:
                            echo_subscriber, test_topic):
         assert amqp_client.connected
         message = {'test': 'hello'}
-        await amqp_client.publish(message, test_topic)
+        await amqp_client.command(message, test_topic)
 
         on_message_queue = ctx.create_queue(size=1, timeout=3)
 
@@ -68,7 +68,7 @@ class TestAMQPTransport:
             on_message_queue.put_nowait((data, routing_key, context_, serializer_))
 
         echo_subscriber.on_message = on_message
-        await amqp_client.subscribe(echo_subscriber)
+        await amqp_client.on(echo_subscriber)
         r_message, r_key, r_context, r_serializer = await on_message_queue.get()
         assert (json.loads(r_message).get('body'), r_key) == (message, test_topic)
 
@@ -85,7 +85,7 @@ class TestAMQPTransport:
         """
         Test that can subscribe.
         """
-        await amqp_client.subscribe(subscriber)
+        await amqp_client.on(subscriber)
 
         assert subscriber.routing_keys == tuple(amqp_client._routing.keys())
         assert subscriber in list(amqp_client._routing.values())

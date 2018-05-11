@@ -164,7 +164,7 @@ class AMQPTransport(AbstractTransport):
         raise exceptions.StreamConnectionError('Error initializing RabbitMQ connection') \
             from exception
 
-    async def publish(self, data, routing_key):
+    async def command(self, data, routing_key):
         if not self.connected:
             logger.warning('Attempted to send message while not connected')
             return
@@ -190,7 +190,7 @@ class AMQPTransport(AbstractTransport):
             properties=default_properties,
         )
 
-    async def subscribe(self, subscriber: AbstractSubscriber):
+    async def on(self, subscriber: AbstractSubscriber):
         """Subscribe to the queue consuming."""
         await self.declare_queue(subscriber.name, subscriber.durable)
 

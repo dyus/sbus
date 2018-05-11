@@ -27,11 +27,11 @@ class AbstractTransport(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    async def publish(self, data, routing_key):
+    async def command(self, data, routing_key):
         pass
 
     @abstractmethod
-    async def subscribe(self, subscriber):
+    async def on(self, subscriber):
         pass
 
     @abstractmethod
