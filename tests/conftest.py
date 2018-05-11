@@ -95,7 +95,7 @@ def connection_parameters():
     return {
         'login': os.environ.get('RABBITMQ_DEFAULT_USER', 'guest'),
         'password': os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest'),
-        'host': os.environ.get('RABBITMQ_HOST', '0.0.0.0'),
+        'host': os.environ.get('RABBITMQ_HOST', 'localhost'),
         'port': '5672',
         'virtualhost': os.environ.get('RABBITMQ_DEFAULT_VHOST', '/'),
     }
@@ -196,5 +196,6 @@ def amqp_client(event_loop, connection_parameters, exchange_name, exchange_type,
     client = AMQPTransport(connection_parameters, exchange_name, exchange_type, worker_name,
                            loop=event_loop)
     event_loop.run_until_complete(client.connect())
+    event_loop.run_until_complete(client.declare_exchange(exchange_name, durable=False))
     yield client
     event_loop.run_until_complete(client.destroy())

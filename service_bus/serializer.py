@@ -26,7 +26,7 @@ def json_serial(obj):
         serial = str(obj)
 
     else:
-        raise SerializationError('Type not serializable %s in %s' % (type(obj), obj))
+        raise SerializationError(f'Type not serializable {type(obj)} in {obj}')
 
     return serial
 

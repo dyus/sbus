@@ -10,9 +10,8 @@ from tests.utils import make_mocked_coro
 
 class TestAMQPTransport:
     @pytest.fixture
-    def setup_exchange_and_queue(self, event_loop, amqp_client, exchange_name, queue_name,
-                                 test_topic):
-        event_loop.run_until_complete(amqp_client.declare_exchange(exchange_name, durable=False))
+    def setup_queue(self, event_loop, amqp_client, exchange_name, queue_name,
+                    test_topic):
         event_loop.run_until_complete(amqp_client.declare_queue(queue_name))
         event_loop.run_until_complete(amqp_client.bind_to_queue(test_topic, queue_name))
 
@@ -57,7 +56,7 @@ class TestAMQPTransport:
             await not_connected_client.connect()
 
     @pytest.mark.asyncio
-    async def test_publish(self, ctx, setup_exchange_and_queue, amqp_client,
+    async def test_publish(self, ctx, setup_queue, amqp_client,
                            echo_subscriber, test_topic):
         assert amqp_client.connected
         message = {'test': 'hello'}
@@ -82,7 +81,7 @@ class TestAMQPTransport:
         await not_connected_client.destroy()
 
     @pytest.mark.asyncio
-    async def test_consume_queue(self, ctx, setup_exchange_and_queue, amqp_client, subscriber):
+    async def test_consume_queue(self, ctx, setup_queue, amqp_client, subscriber):
         """
         Test that can subscribe.
         """

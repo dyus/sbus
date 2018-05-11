@@ -7,7 +7,7 @@ install:
   - pip install -U pip wheel setuptools python-coveralls tox tox-travis
 
 script:
-  - pytest
+  - tox
 
 services:
   - rabbitmq

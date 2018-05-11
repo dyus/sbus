@@ -22,9 +22,19 @@ setup(
         'pydantic==0.6.3'
     ],
     tests_require=[
-        'pytest-asyncio',
-        'pytest-flake8',
+        'flake8-builtins',
+        'flake8-quotes',
+        'flake8-pep3101',
+        'flake8-comprehensions',
+        'flake8-blind-except',
+        'pep8-naming',
+
+        'pytest-cov',
         'pytest-isort',
+
+        'pytest-asyncio',
+        'flake8',
+        'pytest-flake8',
         'pytest'
     ],
     setup_requires=['pytest-runner'],
