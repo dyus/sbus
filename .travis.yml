@@ -1,0 +1,19 @@
+sudo: false
+language: python
+python:
+  - 2.7
+  - 3.5
+  - 3.6
+
+install:
+  - pip install -U pip wheel setuptools python-coveralls
+
+script:
+  - pytest
+
+addons:
+  apt_packages:
+    - pandoc
+
+after_success:
+  - coveralls
