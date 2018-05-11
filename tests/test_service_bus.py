@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from sbus.sbus import BackOff, Sbus, ServiceBusWatchDog
+from sbus.sbus import BackOff, Sbus, SbusWatchDog
 from sbus.transports import SUPPORTED_TRANSPORTS, AMQPTransport
 from sbus.utils import create_transport
 from tests.conftest import Context  # noqa
@@ -99,7 +99,7 @@ class TestServiceBusWatchDog:
         loop = mock.Mock()
 
         service_bus_factory = Sbus.create_factory(transport_config, loop)
-        watch_dog = ServiceBusWatchDog(service_bus_factory)
+        watch_dog = SbusWatchDog(service_bus_factory)
 
         assert watch_dog.sbus.loop == loop
         assert watch_dog.sbus.transport.channel_name == worker_name
@@ -111,7 +111,7 @@ class TestServiceBusWatchDog:
 
         service_bus_factory = Sbus.create_factory(transport_config, event_loop)
         backoff = BackOff(max_timeout=10)
-        watch_dog = ServiceBusWatchDog(service_bus_factory, backoff=backoff)
+        watch_dog = SbusWatchDog(service_bus_factory, backoff=backoff)
 
         on_message_queue = ctx.create_queue(size=1, timeout=10)
 

@@ -91,7 +91,7 @@ class BackOff:
         self.retry_count = 0
 
 
-class ServiceBusWatchDog:
+class SbusWatchDog:
     """Class for control Sbus health and status.
 
     This class should be used if you want survive through broker downs.
