@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/sbus.svg)](https://badge.fury.io/py/sbus) [![Build Status](https://travis-ci.org/dyus/sbus.svg?branch=master)](https://travis-ci.org/dyus/sbus) [![Coverage Status](https://coveralls.io/repos/github/dyus/sbus/badge.svg?branch=master)](https://coveralls.io/github/dyus/sbus?branch=master)
+
 # Testing
 
 There are two ways to execute tests (docker required):

@@ -2,7 +2,3 @@
 include README.md
 
 recursive-include tests *
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
-
-recursive-include requirements
