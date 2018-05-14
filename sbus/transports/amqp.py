@@ -404,7 +404,7 @@ class AMQPTransport(AbstractTransport):
         logger.info('Declared rpc queue "%s"', queue_name)
         return queue_name
 
-    async def request(self, data, routing_key, callback=None):
+    async def request(self, data, routing_key):
         """RPC call method
 
         :param data: query data
@@ -419,14 +419,10 @@ class AMQPTransport(AbstractTransport):
         callback_queue = await self._declare_response_queue()
 
         body = self._serializer.serialize(Response(body=data))
-        waiter = asyncio.Event()
+        waiter_future = asyncio.Future()
 
         def waiter_callback(ch, body, method, props):
-            try:
-                if callback:
-                    callback(ch, body, method, props)
-            finally:
-                waiter.set()
+            waiter_future.set_result(body)
 
         logger.debug('Start callback consuming on queue: %s', callback_queue)
         await self.channel.basic_consume(waiter_callback, callback_queue, no_ack=True)
@@ -451,7 +447,8 @@ class AMQPTransport(AbstractTransport):
             payload=body
         )
 
-        await waiter.wait()
+        # TODO parametrize timeout for request 14.05.2018
+        return await asyncio.wait_for(waiter_future, self.default_timeout)
 
     async def ack(self, delivery_tag):
         await self._channel.basic_client_ack(delivery_tag)

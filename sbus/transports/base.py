@@ -35,7 +35,7 @@ class AbstractTransport(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    async def request(self, data, topic, callback=None):
+    async def request(self, data, routing_key):
         pass
 
     @abstractmethod
