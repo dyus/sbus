@@ -403,9 +403,9 @@ class AMQPTransport(AbstractTransport):
         queue_name = queue_declaration.get('queue')
         logger.info('Declared rpc queue "%s"', queue_name)
         return queue_name
-    
-    # TODO response class as arg 14.05.2018
+
     async def request(self, data, routing_key):
+        # TODO response class as arg 14.05.2018
         """RPC call method
 
         :param data: query data

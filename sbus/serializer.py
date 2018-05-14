@@ -8,7 +8,7 @@ from pydantic.main import MetaModel
 
 from sbus.models import Response
 
-from .exceptions import BadRequestError, SerializationError, InternalServerError
+from .exceptions import BadRequestError, InternalServerError, SerializationError
 
 logger = logging.getLogger(__name__)
 

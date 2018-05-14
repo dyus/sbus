@@ -39,7 +39,9 @@ def create_transport(config, loop):
 
     transport_class = SUPPORTED_TRANSPORTS[active_transport]
     if 'serializer' in active_transport_setup:
-        active_transport_setup['serializer'] = my_import(active_transport_setup.get('serializer'))()
+        active_transport_setup['serializer'] = my_import(
+            active_transport_setup.get('serializer')
+        )()
     transport = transport_class(**active_transport_setup, loop=loop)
 
     return transport

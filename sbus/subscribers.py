@@ -4,9 +4,6 @@ import typing
 import uuid
 from abc import ABCMeta, abstractmethod
 
-from pydantic.main import MetaModel
-
-from sbus.exceptions import InternalServerError
 from sbus.models import Response
 from sbus.serializer import JSONSerializer
 
