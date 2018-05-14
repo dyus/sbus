@@ -1,6 +1,14 @@
 from .transports import SUPPORTED_TRANSPORTS
 
 
+def my_import(name):
+    components = name.split('.')
+    mod = __import__('.'.join(components[:-1]))
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
+
 def create_transport(config, loop):
     """Create transport from configured settings.
 
@@ -30,6 +38,8 @@ def create_transport(config, loop):
     active_transport_setup = config['transports'][active_transport]
 
     transport_class = SUPPORTED_TRANSPORTS[active_transport]
+    if 'serializer' in active_transport_setup:
+        active_transport_setup['serializer'] = my_import(active_transport_setup.get('serializer'))()
     transport = transport_class(**active_transport_setup, loop=loop)
 
     return transport

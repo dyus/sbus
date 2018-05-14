@@ -92,7 +92,4 @@ class QueueSubscriber(AbstractSubscriber):
 
     @staticmethod
     def _get_request_model(handler):
-        type_ = inspect.signature(handler).parameters['task'].annotation
-        if not isinstance(type_, MetaModel):
-            raise InternalServerError('Use pydantic for describing expected request type.')
-        return type_
+        return inspect.signature(handler).parameters['task'].annotation

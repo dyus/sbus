@@ -403,13 +403,13 @@ class AMQPTransport(AbstractTransport):
         queue_name = queue_declaration.get('queue')
         logger.info('Declared rpc queue "%s"', queue_name)
         return queue_name
-
+    
+    # TODO response class as arg 14.05.2018
     async def request(self, data, routing_key):
         """RPC call method
 
         :param data: query data
         :param routing_key: routing key
-        :param callback: optional callback to execute when PRC-call is completed
         """
         if not self.connected:
             logger.warning('Attempted to send message while not connected')
@@ -421,11 +421,12 @@ class AMQPTransport(AbstractTransport):
         body = self._serializer.serialize(Response(body=data))
         waiter_future = asyncio.Future()
 
-        def waiter_callback(ch, body, method, props):
+        async def waiter_callback(ch, body, method, props):
             waiter_future.set_result(body)
 
         logger.debug('Start callback consuming on queue: %s', callback_queue)
-        await self.channel.basic_consume(waiter_callback, callback_queue, no_ack=True)
+        await self.channel.basic_consume(callback=waiter_callback, queue_name=callback_queue,
+                                         no_ack=True)
 
         logger.debug('Publish RPC call data: %s, exchange_name: %s, routing_key: %s, '
                      'reply_to: %s, correlation_id:%s, delivery_mode: %s', data,

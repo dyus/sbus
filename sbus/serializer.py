@@ -8,7 +8,7 @@ from pydantic.main import MetaModel
 
 from sbus.models import Response
 
-from .exceptions import BadRequestError, SerializationError
+from .exceptions import BadRequestError, SerializationError, InternalServerError
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,9 @@ class JSONSerializer:
         return serialized
 
     def deserialize(self, msg, model: MetaModel) -> MetaModel:
+        if not isinstance(model, MetaModel):
+            raise InternalServerError('Use pydantic for describing expected request type.')
+
         body_txt = msg.decode('utf-8') if hasattr(msg, 'decode') else msg
         try:
             deserialized = json.loads(body_txt)
