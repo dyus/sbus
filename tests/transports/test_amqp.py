@@ -42,7 +42,6 @@ class TestAMQPTransport:
         assert amqp_client._routing == {}
         assert amqp_client.loop == event_loop
         assert amqp_client.routing == {}
-        assert amqp_client.known_queues == {}
         assert amqp_client.connected is True
         assert not amqp_client.is_connecting
         assert isinstance(amqp_client.channel, Channel)

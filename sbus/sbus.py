@@ -35,13 +35,14 @@ class Sbus:
         """
         await self.transport.command(message, routing_key)
 
-    async def request(self, message, routing_key):
+    async def request(self, message, routing_key, response_class):
         """RPC call with data and routing key
 
         :param message:  message for publish
         :param routing_key: routing key for message
+        :param response_class: response class
         """
-        return await self.transport.request(message, routing_key)
+        return await self.transport.request(message, routing_key, response_class)
 
     async def on(self, subscriber: AbstractSubscriber):
         """Subscribe on queue."""

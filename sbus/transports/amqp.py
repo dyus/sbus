@@ -8,6 +8,7 @@ import math
 import time
 import typing  # noqa
 from uuid import uuid4
+from weakref import WeakValueDictionary
 
 import aioamqp
 from aioamqp import AmqpClosedConnection, ChannelClosed
@@ -85,6 +86,8 @@ class AMQPTransport(AbstractTransport):
         self._routing = {}
         self.loop = loop
         self._serializer = serializer or JSONSerializer()
+        self._response_queue = None
+        self.requests = WeakValueDictionary()
 
         # TODO move to config
         self.retry_exchange = 'retries'
@@ -94,10 +97,6 @@ class AMQPTransport(AbstractTransport):
     @property
     def routing(self):
         return self._routing
-
-    @property
-    def known_queues(self):
-        return self._known_queues
 
     @property
     def connected(self):
@@ -217,6 +216,59 @@ class AMQPTransport(AbstractTransport):
         )
 
         self._add_to_known_queues(subscriber)
+
+    async def request(self, data, routing_key, response_class):
+        """RPC call method
+
+        :param data: query data
+        :param routing_key: routing key
+        :param response_class: response class
+        """
+        if not self.connected:
+            logger.warning('Attempted to send message while not connected')
+            return
+
+        corr_id = self.generate_correlation_id()
+        callback_queue = await self._get_response_queue()
+
+        body = self._serializer.serialize(Response(body=data))
+        waiter_future = asyncio.Future()
+        
+        self.requests[corr_id] = waiter_future
+        
+        async def waiter_callback(ch, body, method, props):
+            if props.correlation_id in self.requests:
+                waiter = self.requests.get(props.correlation_id)
+                waiter.set_result(body)
+            else:
+                logger.warning('There is no callback for request with correlation id %s',
+                               props.correlation_id)
+
+        logger.debug('Start callback consuming on queue: %s', callback_queue)
+        await self.channel.basic_consume(callback=waiter_callback, queue_name=callback_queue,
+                                         no_ack=True)
+
+        logger.info('sbus ~~~> %s: %s', routing_key, body[:256])
+
+        await self.channel.publish(
+            exchange_name=self._exchange_name,
+            routing_key=routing_key,
+            properties={
+                'reply_to': callback_queue,
+                'correlation_id': corr_id,
+                'headers': {
+                    Headers.correlation_id: self.generate_correlation_id(),
+                    Headers.retry_attempts_max: self.default_command_retries,
+                    Headers.expired_at: str(self.default_timeout),
+                }
+            },
+            payload=body
+        )
+
+        # TODO parametrize timeout for request 14.05.2018
+        response = await asyncio.wait_for(self.requests[corr_id], self.default_timeout)
+        logger.info('sbus <~~~ %s: %s', routing_key, response[:256])
+        return self._serializer.deserialize(response, response_class)
 
     async def declare_queue(self, queue_name, durable=True):
         logger.info('Declaring queue...')
@@ -397,59 +449,12 @@ class AMQPTransport(AbstractTransport):
         logger.debug('Generated correlation_id %s', corr_id)
         return corr_id
 
-    async def _declare_response_queue(self):
-        logger.info('Declaring rpc queue...')
-        queue_declaration = await self.channel.queue_declare(exclusive=True)
-        queue_name = queue_declaration.get('queue')
-        logger.info('Declared rpc queue "%s"', queue_name)
-        return queue_name
-
-    async def request(self, data, routing_key):
-        # TODO response class as arg 14.05.2018
-        """RPC call method
-
-        :param data: query data
-        :param routing_key: routing key
-        """
-        if not self.connected:
-            logger.warning('Attempted to send message while not connected')
-            return
-
-        corr_id = self.generate_correlation_id()
-        callback_queue = await self._declare_response_queue()
-
-        body = self._serializer.serialize(Response(body=data))
-        waiter_future = asyncio.Future()
-
-        async def waiter_callback(ch, body, method, props):
-            waiter_future.set_result(body)
-
-        logger.debug('Start callback consuming on queue: %s', callback_queue)
-        await self.channel.basic_consume(callback=waiter_callback, queue_name=callback_queue,
-                                         no_ack=True)
-
-        logger.debug('Publish RPC call data: %s, exchange_name: %s, routing_key: %s, '
-                     'reply_to: %s, correlation_id:%s, delivery_mode: %s', data,
-                     self._exchange_name, routing_key, callback_queue, corr_id,
-                     self._delivery_mode)
-
-        await self.channel.publish(
-            exchange_name=self._exchange_name,
-            routing_key=routing_key,
-            properties={
-                'reply_to': callback_queue,
-                'correlation_id': corr_id,
-                'headers': {
-                    Headers.correlation_id: self.generate_correlation_id(),
-                    Headers.retry_attempts_max: self.default_command_retries,
-                    Headers.expired_at: str(self.default_timeout),
-                }
-            },
-            payload=body
-        )
-
-        # TODO parametrize timeout for request 14.05.2018
-        return await asyncio.wait_for(waiter_future, self.default_timeout)
+    async def _get_response_queue(self):
+        if not self._response_queue:
+            logger.info('Declaring rpc queue...')
+            self._request_queue = await self.channel.queue_declare(exclusive=True)
+            logger.info('Declared rpc queue "%s"', self._request_queue.get('queue'))
+        return self._request_queue.get('queue')
 
     async def ack(self, delivery_tag):
         await self._channel.basic_client_ack(delivery_tag)
