@@ -77,7 +77,7 @@ class QueueSubscriber(AbstractSubscriber):
 
     @property
     def routing_keys(self):
-        return self.config.get('routing_keys', ())
+        return self.routing.routing.keys()
 
     async def on_message(self, data: bytes, routing_key: typing.AnyStr,
                          context: typing.Dict, serializer: JSONSerializer):

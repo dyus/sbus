@@ -233,9 +233,9 @@ class AMQPTransport(AbstractTransport):
 
         body = self._serializer.serialize(Response(body=data))
         waiter_future = asyncio.Future()
-        
+
         self.requests[corr_id] = waiter_future
-        
+
         async def waiter_callback(ch, body, method, props):
             if props.correlation_id in self.requests:
                 waiter = self.requests.get(props.correlation_id)
