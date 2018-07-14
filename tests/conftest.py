@@ -147,15 +147,13 @@ def wrong_worker_name():
 
 
 @pytest.fixture
-def routes(queue_name, test_topic, prefetch_count, worker_name, wrong_worker_name):
+def routes(queue_name, prefetch_count, worker_name, wrong_worker_name):
     return {
         worker_name: {
-            'routing_keys': (test_topic,),
             'queue_name': queue_name,
             'prefetch_count': prefetch_count,
         },
         wrong_worker_name: {
-            'routing_keys': (test_topic,),
             'queue_name': queue_name,
             'prefetch_count': prefetch_count,
         }

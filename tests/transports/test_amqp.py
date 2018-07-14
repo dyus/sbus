@@ -86,6 +86,6 @@ class TestAMQPTransport:
         """
         await amqp_client.on(subscriber)
 
-        assert subscriber.routing_keys == tuple(amqp_client._routing.keys())
+        assert subscriber.routing_keys == amqp_client.routing.keys()
         assert subscriber in list(amqp_client._routing.values())
         assert subscriber.name in amqp_client._known_queues
