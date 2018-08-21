@@ -1,5 +1,5 @@
-from .amqp import AMQPTransport
+from .aiopika import AioPikaTransport
 
 SUPPORTED_TRANSPORTS = {
-    'amqp': AMQPTransport
+    'aiopika': AioPikaTransport,
 }

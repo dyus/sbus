@@ -27,11 +27,11 @@ class StreamInterrupt(BaseException):
     """Error for stop StreamWorker loop gracefully."""
 
 
-class RecoverableErrorBase(UnrecoverableExceptionBase):
+class RecoverableErrorBase(Exception):
     pass
 
 
-class TooManyRequestError(UnrecoverableExceptionBase):
+class TooManyRequestError(RecoverableErrorBase):
     status = 429
 
 
@@ -59,9 +59,22 @@ class UnrecoverableError(UnrecoverableExceptionBase):
     status = 456
 
 
-class ServiceUnavailableError(UnrecoverableExceptionBase):
+class ServiceUnavailableError(RecoverableErrorBase):
     status = 503
 
 
-class InternalServerError(UnrecoverableExceptionBase):
+class InternalServerError(RecoverableErrorBase):
     status = 500
+
+
+from_code_exception = {
+    429: TooManyRequestError,
+    400: BadRequestError,
+    401: UnauthorizedError,
+    403: ForbiddenError,
+    404: NotFoundError,
+    405: MethodNotAllowedError,
+    456: UnrecoverableError,
+    503: ServiceUnavailableError,
+    500: InternalServerError
+}
