@@ -5,7 +5,6 @@ import uuid
 from abc import ABCMeta, abstractmethod
 
 from sbus.models import Response
-from sbus.serializer import JSONSerializer
 
 from .router import Router
 
@@ -79,12 +78,11 @@ class QueueSubscriber(AbstractSubscriber):
     def routing_keys(self):
         return self.routing.routing.keys()
 
-    async def on_message(self, data: bytes, routing_key: typing.AnyStr,
-                         context: typing.Dict, serializer: JSONSerializer):
+    async def on_message(self, data: bytes, routing_key: typing.AnyStr, context: typing.Dict, serializer):  # noqa
         handler = self.routing.get_handler(routing_key)
-
-        request_body = serializer.deserialize(data, self._get_request_model(handler))
-        response = await handler(request_body, context, **self.handler_kwargs)
+        model = self._get_request_model(handler)
+        request_body = serializer.deserialize(data).body
+        response = await handler(model(**request_body), context, **self.handler_kwargs)
         return serializer.serialize(Response(body=response))
 
     @staticmethod

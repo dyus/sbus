@@ -4,11 +4,10 @@ import logging
 from datetime import date, datetime, timedelta
 
 from pydantic import ValidationError
-from pydantic.main import MetaModel
 
 from sbus.models import Response
 
-from .exceptions import BadRequestError, InternalServerError, SerializationError
+from .exceptions import BadRequestError, SerializationError
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +42,7 @@ class JSONSerializer:
             raise SerializationError from error
         return serialized
 
-    def deserialize(self, msg, model: MetaModel) -> MetaModel:
-        if not isinstance(model, MetaModel):
-            raise InternalServerError('Use pydantic for describing expected request type.')
-
+    def deserialize(self, msg) -> Response:
         body_txt = msg.decode('utf-8') if hasattr(msg, 'decode') else msg
         try:
             deserialized = json.loads(body_txt)
@@ -56,7 +52,7 @@ class JSONSerializer:
             raise SerializationError from error
 
         try:
-            return model(**deserialized.get('body'))
+            return Response(**deserialized)
         except ValidationError as error:
             logger.exception('Invalid message: %s. Because of %s', body_txt, str(error))
             raise BadRequestError(str(error)) from error
