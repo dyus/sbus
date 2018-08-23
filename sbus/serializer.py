@@ -2,6 +2,7 @@ import enum
 import json
 import logging
 from datetime import date, datetime, timedelta
+from uuid import UUID
 
 from pydantic import ValidationError
 
@@ -22,6 +23,9 @@ def json_serial(obj):
         serial = obj.value
 
     elif isinstance(obj, timedelta):
+        serial = str(obj)
+
+    elif isinstance(obj, UUID):
         serial = str(obj)
 
     else:
