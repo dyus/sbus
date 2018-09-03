@@ -158,7 +158,7 @@ class AioPikaTransport(AbstractTransport):
         self.dlx_exchange = None
 
     async def connect(self):
-        self.connection = await connect_robust()
+        self.connection = await connect_robust(**self.connection_parameters)
         self.channel = await self.connection.channel()
         self.exchange = await self.channel.declare_exchange(
             self.exchange_name,
