@@ -1,7 +1,7 @@
 import enum
 import json
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from uuid import UUID
 
 from pydantic import ValidationError
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code."""
 
-    if isinstance(obj, (datetime, date)):
+    if isinstance(obj, (datetime, date, time)):
         serial = obj.isoformat()
 
     elif issubclass(obj.__class__, enum.Enum):
