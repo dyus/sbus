@@ -12,7 +12,7 @@ from aio_pika import (
     connect_robust
 )
 
-from sbus.exceptions import UnrecoverableExceptionBase, from_code_exception
+from sbus.exceptions import from_code_exception, RecoverableErrorBase
 from sbus.models import Context, ErrorResponseBody, Headers, Response
 from sbus.subscribers import AbstractSubscriber
 
@@ -250,7 +250,7 @@ class AioPikaTransport(AbstractTransport):
         await self.connection.close()
 
     async def _handle_exception(self, message: IncomingMessage, error: Exception):
-        if isinstance(error, UnrecoverableExceptionBase):
+        if not isinstance(error, RecoverableErrorBase):
             await self._on_fail(message, error)
 
         else:
