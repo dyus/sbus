@@ -18,7 +18,7 @@ setup(
     license='BSD License',
     description='Pub/sub abstraction for aioamqp',
     install_requires=[
-        'aio-pika==3.1.0',
+        'aio-pika==4.0.0',
         'pydantic==0.12.1'
     ],
     tests_require=[
