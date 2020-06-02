@@ -215,7 +215,7 @@ class AioPikaTransport(AbstractTransport):
                 err = from_code_exception[deserialized.status]
                 raise err(err_message.error)
         else:
-            return self.exchange.publish(message)
+            return await self.exchange.publish(message, routing_key)
 
     async def on_message(self, subscriber: AbstractSubscriber, message: IncomingMessage):
         try:
@@ -338,4 +338,11 @@ class AioPikaTransport(AbstractTransport):
                 )
 
         finally:
+            logger.exception(
+                'Invalid message (%s) with routing_key %s, '
+                "don't retry it! Correlation id: %s",
+                message.body,
+                message.routing_key,
+                message.headers.get(Headers.correlation_id) if message.headers else None,
+            )
             message.nack(requeue=False)
