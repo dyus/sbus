@@ -8,11 +8,11 @@ from functools import partial
 
 import pydantic
 from aio_pika import (
-    Channel, Connection, DeliveryMode, Exchange, ExchangeType, IncomingMessage, Message,
-    connect_robust
+    Channel, Connection, DeliveryMode, Exchange, ExchangeType, IncomingMessage,
+    Message, connect_robust
 )
 
-from sbus.exceptions import from_code_exception, RecoverableErrorBase
+from sbus.exceptions import RecoverableErrorBase, from_code_exception
 from sbus.models import Context, ErrorResponseBody, Headers, Response
 from sbus.subscribers import AbstractSubscriber
 
@@ -116,7 +116,8 @@ class RPC:
         resp = await asyncio.wait_for(future, self.default_expiration)
         return resp
 
-    async def on_call_message(self, method_name: str, message: IncomingMessage, context: Context, subscriber: AbstractSubscriber, serializer: JSONSerializer):  # noqa
+    async def on_call_message(self, method_name: str, message: IncomingMessage, context: Context,
+                              subscriber: AbstractSubscriber, serializer: JSONSerializer):  # noqa
         if method_name not in subscriber.routing_keys:
             logger.warning('Method %r not registered in %r', method_name, self)
             return
@@ -173,7 +174,7 @@ class AioPikaTransport(AbstractTransport):
 
         self.rpc = await RPC.create(self.channel)
 
-    async def send(self, data: pydantic.BaseModel, routing_key: str, context: Context=None,
+    async def send(self, data: pydantic.BaseModel, routing_key: str, context: Context = None,
                    response_class=None):
         serialized_data = self.serializer.serialize(Response(body=data))
         corr_id = context.correlation_id or str(uuid.uuid4())
@@ -284,7 +285,7 @@ class AioPikaTransport(AbstractTransport):
                 if expires_at and int(expires_at) <= (time.time() + backoff):
                     logger.exception(
                         'timeout %s. Message will be expired %s, '
-                        'don\'t retry it! Correlation id: %s',
+                        "don't retry it! Correlation id: %s",
                         message.routing_key,
                         expires_at,
                         headers.get(Headers.correlation_id),
@@ -307,7 +308,7 @@ class AioPikaTransport(AbstractTransport):
             else:
                 logger.exception(
                     'max retries (%s) reached %s, '
-                    'don\'t retry it! Correlation id: %s',
+                    "don't retry it! Correlation id: %s",
                     attempts_max,
                     message.routing_key,
                     headers.get(Headers.correlation_id),

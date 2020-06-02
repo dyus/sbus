@@ -18,8 +18,8 @@ setup(
     license='BSD License',
     description='Pub/sub abstraction for aioamqp',
     install_requires=[
-        'aio-pika==4.0.0',
-        'pydantic==0.12.1'
+        'aio-pika==6.6.1',
+        'pydantic==1.5.1'
     ],
     tests_require=[
         'flake8-builtins',

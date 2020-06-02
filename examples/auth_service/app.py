@@ -74,7 +74,7 @@ def main():
     )
     try:
         loop.run_forever()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         loop.run_until_complete(sbus.transport.destroy())
 
 

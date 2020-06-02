@@ -1,7 +1,7 @@
 import enum
 import json
 import logging
-from datetime import date, datetime, timedelta, time
+from datetime import date, datetime, time, timedelta
 from uuid import UUID
 
 from pydantic import ValidationError
@@ -42,7 +42,7 @@ class JSONSerializer:
                 ensure_ascii=False,
                 default=json_serial).encode()
         except Exception as error:
-            logger.exception('Can\'t serialization message: %s. Because of %s', data, str(error))
+            logger.exception("Can't serialization message: %s. Because of %s", data, str(error))
             raise SerializationError from error
         return serialized
 
@@ -51,7 +51,7 @@ class JSONSerializer:
         try:
             deserialized = json.loads(body_txt)
         except json.JSONDecodeError as error:
-            logger.exception('Can\'t deserialize message: %s. Because of %s',
+            logger.exception("Can't deserialize message: %s. Because of %s",
                              body_txt, str(error))
             raise SerializationError from error
 
