@@ -19,7 +19,7 @@ setup(
     description='Pub/sub abstraction for aioamqp',
     install_requires=[
         'aio-pika==6.6.1',
-        'pydantic==1.5.1'
+        'pydantic==1.6.2'
     ],
     tests_require=[
         'flake8-builtins',
